@@ -331,6 +331,20 @@
 							detail: Object.freeze({ name: this.properties.name, value: optionValue })
 						}));
 					});
+					input.addEventListener('keydown', (event) => {
+						const currentIndex = uiScaleValues.indexOf(optionValue);
+						const offsets = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+						if (Object.prototype.hasOwnProperty.call(offsets, event.key)) {
+							event.preventDefault();
+							const nextIndex = (currentIndex + offsets[event.key] + uiScaleValues.length) % uiScaleValues.length;
+							this.activate(uiScaleValues[nextIndex]);
+							return;
+						}
+						if (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Enter') {
+							event.preventDefault();
+							this.activate(optionValue);
+						}
+					});
 					option.append(input, copy);
 					options.append(option);
 					this.optionElements.set(optionValue, { input, copy });
@@ -341,6 +355,14 @@
 				this.fieldsetElement = fieldset;
 				this.legendElement = legend;
 				this.descriptionElement = description;
+			}
+
+			activate(value) {
+				const elements = this.optionElements.get(value);
+				if (!elements || this.properties.disabled) return false;
+				elements.input.focus();
+				elements.input.click();
+				return true;
 			}
 
 			sync() {

@@ -109,6 +109,9 @@ test('runtime source constructs dynamic UI without markup strings', () => {
 	assert.match(source, /createElement\(buttonTag\)/);
 	assert.match(source, /createElement\('fieldset'\)/);
 	assert.match(source, /createElement\('input'\)/);
+	assert.match(source, /ArrowRight:\s*1[\s\S]*ArrowLeft:\s*-1/);
+	assert.match(source, /event\.key === ' '[\s\S]*event\.key === 'Enter'/);
+	assert.match(source, /elements\.input\.focus\(\)[\s\S]*elements\.input\.click\(\)/);
 	assert.match(source, /replaceChildren/);
 	assert.match(css, /min-height:\s*2\.75rem/);
 	assert.match(css, /user-select:\s*none/);

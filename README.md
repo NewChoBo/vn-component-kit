@@ -83,7 +83,7 @@ UI 크기를 `compact`, `standard`, `large` 세 단계로 고르는 엔진 비�
 - `disabled`: boolean attribute/property
 - 변경 이벤트: `nc-vn-ui-scale-change` (`detail.value`, `detail.name`)
 
-컴포넌트는 최소 44px 선택 영역과 native radio keyboard semantics를 제공합니다. `compact`를 선택해도 소비 프로젝트는 핵심 터치 영역을 44px보다 작게 줄이지 않아야 합니다.
+컴포넌트는 최소 44px 선택 영역과 native radio semantics를 제공하며, 방향키·Space·Enter 선택을 명시적으로 보장합니다. `compact`를 선택해도 소비 프로젝트는 핵심 터치 영역을 44px보다 작게 줄이지 않아야 합니다.
 
 ## 브라우저 직접 로딩
 
