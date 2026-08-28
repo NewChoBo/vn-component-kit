@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>VN Component Kit fixture</title>
+		<link rel="stylesheet" href="../index.css">
+		<style>
+			body { font-family: sans-serif; margin: 2rem auto; max-width: 42rem; padding: 0 1rem; }
+			nc-vn-choice { --nc-vn-button-radius: 0.5rem; }
+		</style>
+		<script src="../index.js"></script>
+	</head>
+	<body>
+		<main>
+			<h1>Choice fixture</h1>
+			<nc-vn-choice id="fixture-choice"></nc-vn-choice>
+			<p id="result" aria-live="polite"></p>
+		</main>
+		<script>
+			const choice = document.querySelector('#fixture-choice');
+			choice.definition = {
+				id: 'first-response',
+				ariaLabel: '첫 대응 선택',
+				situation: '경보가 울리고 두 통로가 동시에 닫히기 시작한다.',
+				constraint: '지금 확보할 수 있는 통로는 하나뿐이다.',
+				options: [
+					{ id: 'secure-exit', label: '출구를 먼저 확보한다', description: '대피 경로를 남긴다' },
+					{ id: 'check-signal', label: '신호실로 향한다', description: '원인을 먼저 확인한다' }
+				]
+			};
+			choice.addEventListener('nc-vn-choice', (event) => {
+				document.querySelector('#result').textContent = `Selected: ${event.detail.optionId}`;
+			});
+		</script>
+	</body>
+</html>

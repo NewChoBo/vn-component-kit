@@ -1,0 +1,28 @@
+{
+  "name": "@newchobo/vn-components",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Engine-independent Web Components and authoring contracts for NewChoBo visual novels",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./index.css": "./index.css"
+  },
+  "files": [
+    "index.js",
+    "index.css",
+    "README.md",
+    "docs/"
+  ],
+  "scripts": {
+    "test": "node --test tests/**/*.test.mjs",
+    "validate": "npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "sideEffects": [
+    "index.js",
+    "index.css"
+  ]
+}

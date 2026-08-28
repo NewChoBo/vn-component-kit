@@ -1,0 +1,90 @@
+nc-vn-button,
+nc-vn-choice {
+	box-sizing: border-box;
+}
+nc-vn-button {
+	display: inline-block;
+}
+
+.nc-vn-button {
+	-webkit-user-select: none;
+	align-items: center;
+	background: var(--nc-vn-button-background, transparent);
+	border: 1px solid var(--nc-vn-button-border, currentColor);
+	border-radius: var(--nc-vn-button-radius, 0);
+	color: var(--nc-vn-button-color, inherit);
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.7rem 1rem;
+	text-align: start;
+	user-select: none;
+}
+
+.nc-vn-button:focus-visible {
+	outline: 2px solid var(--nc-vn-focus-color, currentColor);
+	outline-offset: 3px;
+}
+
+.nc-vn-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.52;
+}
+
+.nc-vn-button--icon {
+	border-radius: 50%;
+	height: 2.75rem;
+	padding: 0;
+	width: 2.75rem;
+}
+
+.nc-vn-button--text {
+	align-items: flex-start;
+	flex-direction: column;
+	gap: 0.3rem;
+	overflow-wrap: anywhere;
+	width: 100%;
+}
+
+.nc-vn-button__label {
+	font-weight: 700;
+}
+
+.nc-vn-button__description {
+	font-size: 0.875em;
+	font-weight: 400;
+	line-height: 1.45;
+	opacity: 0.76;
+}
+
+nc-vn-choice {
+	-webkit-user-select: none;
+	display: grid;
+	gap: var(--nc-vn-choice-gap, 1rem);
+	user-select: none;
+}
+
+.nc-vn-choice__context {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.nc-vn-choice__context p {
+	margin: 0;
+}
+
+.nc-vn-choice__constraint,
+.nc-vn-choice__question {
+	opacity: 0.78;
+}
+
+.nc-vn-choice__options {
+	display: grid;
+	gap: var(--nc-vn-choice-option-gap, 0.65rem);
+}
+
+.nc-vn-choice__options nc-vn-button {
+	display: block;
+}
