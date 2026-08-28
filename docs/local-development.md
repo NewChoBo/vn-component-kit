@@ -16,7 +16,7 @@ npm run dev
 npm run dev -- --components ../vn-component-kit
 ```
 
-`--components`가 없으면 현재 lockfile로 설치된 `@newchobo/vn-components`를 사용한다. 옵션이 있으면 해당 경로의 package 이름과 공개 JS/CSS를 검증한 뒤 `npm link --save=false --ignore-scripts`를 실행한다. Vite나 별도 bundler는 요구하지 않는다.
+`--components`가 없으면 현재 lockfile로 설치된 `@newchobo/vn-components`를 사용한다. 옵션이 있으면 해당 경로의 package 이름과 공개 JS/CSS를 검증한 뒤 `npm link --save=false --ignore-scripts`를 실행한다. 개발 서버는 소비 프로젝트의 `serve` JavaScript 진입점을 현재 Node로 실행하므로 Windows의 `.cmd` spawn 차이에 의존하지 않는다. Vite나 별도 bundler는 요구하지 않는다.
 
 직접 링크만 만들고 기존 dev server를 유지해야 하는 프로젝트는 아래 명령을 사용한다.
 

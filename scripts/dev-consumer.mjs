@@ -69,8 +69,9 @@ function run(command, args, cwd) {
 export async function prepareComponents(options) {
 	if (options.componentsRoot) {
 		await verifyComponentPackage(options.componentsRoot);
-		const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-		await run(npmCommand, ['link', options.componentsRoot, '--save=false', '--ignore-scripts'], options.consumerRoot);
+		const npmEntrypoint = process.env.npm_execpath;
+		if (!npmEntrypoint) throw new Error('Run this command through npm so the local component link can be prepared.');
+		await run(process.execPath, [npmEntrypoint, 'link', options.componentsRoot, '--save=false', '--ignore-scripts'], options.consumerRoot);
 	}
 
 	const installedRoot = resolve(options.consumerRoot, 'node_modules', '@newchobo', 'vn-components');
@@ -82,8 +83,9 @@ async function main() {
 	const options = parseDevArguments(process.argv.slice(2));
 	const componentRoot = await prepareComponents(options);
 	console.log(`VN components: ${componentRoot}`);
-	const serveCommand = process.platform === 'win32' ? 'serve.cmd' : 'serve';
-	await run(serveCommand, ['.', '--listen', options.port, '--no-clipboard'], options.consumerRoot);
+	const serveEntrypoint = resolve(options.consumerRoot, 'node_modules', 'serve', 'build', 'main.js');
+	await access(serveEntrypoint);
+	await run(process.execPath, [serveEntrypoint, '.', '--listen', options.port, '--no-clipboard'], options.consumerRoot);
 }
 
 if (process.argv[1] && isAbsolute(scriptPath) && resolve(process.argv[1]) === scriptPath) {
