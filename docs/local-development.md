@@ -6,6 +6,20 @@ Lily와 Aether가 같은 component-kit 작업 트리를 읽도록 연결해, com
 
 ## 권장 방식: project-local junction/symlink
 
+소비 프로젝트가 `vn-components-dev`를 dev script로 사용하면 한 명령으로 연결과 서버 실행을 처리할 수 있다.
+
+```powershell
+# 고정 설치 dependency 사용
+npm run dev
+
+# sibling component-kit 작업 트리를 npm link로 연결한 뒤 실행
+npm run dev -- --components ../vn-component-kit
+```
+
+`--components`가 없으면 현재 lockfile로 설치된 `@newchobo/vn-components`를 사용한다. 옵션이 있으면 해당 경로의 package 이름과 공개 JS/CSS를 검증한 뒤 `npm link --save=false --ignore-scripts`를 실행한다. Vite나 별도 bundler는 요구하지 않는다.
+
+직접 링크만 만들고 기존 dev server를 유지해야 하는 프로젝트는 아래 명령을 사용한다.
+
 component-kit 루트에서 실행한다.
 
 ```powershell

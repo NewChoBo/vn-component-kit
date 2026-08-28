@@ -73,6 +73,14 @@ choice.addEventListener('nc-vn-choice', (event) => {
 
 Lily 또는 Aether 저장소 안에 이 작업 트리를 junction/symlink로 연결하면 빌드나 복사 없이 변경 사항이 다음 새로고침에 반영됩니다.
 
+소비 프로젝트가 제공하는 dev wrapper에서는 다음처럼 사용할 수 있습니다.
+
+```powershell
+npm run dev -- --components ../vn-component-kit
+```
+
+옵션이 없으면 lockfile에 고정된 설치본을, 옵션이 있으면 `npm link`로 연결한 로컬 작업 트리를 사용합니다. 현재 Monogatari 프로젝트의 정적 브라우저 로딩을 유지하기 위해 Vite는 요구하지 않습니다.
+
 ```powershell
 # vn-component-kit에서 실행
 npm run link:consumer -- C:\dev\project\newchobo\lily-vn

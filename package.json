@@ -11,6 +11,9 @@
     "url": "https://github.com/NewChoBo/vn-component-kit/issues"
   },
   "homepage": "https://github.com/NewChoBo/vn-component-kit#readme",
+  "bin": {
+    "vn-components-dev": "scripts/dev-consumer.mjs"
+  },
   "main": "index.js",
   "browser": "index.js",
   "customElements": "custom-elements.json",
@@ -25,6 +28,7 @@
     "custom-elements.json",
     "README.md",
     "docs/",
+    "scripts/dev-consumer.mjs",
     "scripts/link-consumer.mjs"
   ],
   "scripts": {
