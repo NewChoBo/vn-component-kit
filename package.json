@@ -3,18 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "description": "Engine-independent Web Components and authoring contracts for NewChoBo visual novels",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NewChoBo/vn-component-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NewChoBo/vn-component-kit/issues"
+  },
+  "homepage": "https://github.com/NewChoBo/vn-component-kit#readme",
   "main": "index.js",
+  "browser": "index.js",
+  "customElements": "custom-elements.json",
   "exports": {
     ".": "./index.js",
-    "./index.css": "./index.css"
+    "./index.css": "./index.css",
+    "./custom-elements.json": "./custom-elements.json"
   },
   "files": [
     "index.js",
     "index.css",
+    "custom-elements.json",
     "README.md",
-    "docs/"
+    "docs/",
+    "scripts/link-consumer.mjs"
   ],
   "scripts": {
+    "link:consumer": "node scripts/link-consumer.mjs",
     "test": "node --test tests/**/*.test.mjs",
     "validate": "npm test && npm pack --dry-run"
   },

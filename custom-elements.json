@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "2.1.0",
+  "readme": "README.md",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "index.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "VnButtonElement",
+          "description": "Engine-independent icon or text action button.",
+          "customElement": true,
+          "tagName": "nc-vn-button",
+          "attributes": [
+            { "name": "variant", "type": { "text": "'icon' | 'text'" }, "default": "text" },
+            { "name": "label", "type": { "text": "string" }, "description": "Required accessible and visible label." },
+            { "name": "description", "type": { "text": "string" }, "description": "Optional secondary text for the text variant." },
+            { "name": "icon", "type": { "text": "string" }, "description": "CSS class tokens required by the icon variant." },
+            { "name": "type", "type": { "text": "'button' | 'submit' | 'reset'" }, "default": "button" },
+            { "name": "action", "type": { "text": "string" } },
+            { "name": "name", "type": { "text": "string" } },
+            { "name": "value", "type": { "text": "string" } },
+            { "name": "disabled", "type": { "text": "boolean" } }
+          ],
+          "members": [
+            { "kind": "field", "name": "label", "type": { "text": "string" } },
+            { "kind": "field", "name": "description", "type": { "text": "string" } },
+            { "kind": "field", "name": "disabled", "type": { "text": "boolean" } }
+          ],
+          "events": [
+            {
+              "name": "nc-vn-activate",
+              "type": { "text": "CustomEvent<{ name: string | null, value: string, action: string | null }>" },
+              "description": "Bubbling activation event emitted by the internal native button."
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "name": "VnChoiceElement",
+          "description": "Property-driven choice presentation with two to four options.",
+          "customElement": true,
+          "tagName": "nc-vn-choice",
+          "members": [
+            {
+              "kind": "field",
+              "name": "definition",
+              "type": { "text": "VnChoiceDefinition" },
+              "description": "Required JavaScript object; JSON string attributes are not accepted."
+            }
+          ],
+          "events": [
+            {
+              "name": "nc-vn-choice",
+              "type": { "text": "CustomEvent<{ definitionId: string, optionId: string }>" },
+              "description": "Bubbling event emitted when an enabled option is selected."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "nc-vn-button",
+          "declaration": { "name": "VnButtonElement", "module": "index.js" }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nc-vn-choice",
+          "declaration": { "name": "VnChoiceElement", "module": "index.js" }
+        }
+      ]
+    }
+  ]
+}

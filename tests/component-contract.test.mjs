@@ -83,9 +83,22 @@ test('runtime source constructs dynamic UI without markup strings', () => {
 test('package remains engine-independent and guarded from accidental publication', () => {
 	const source = readFileSync(join(root, 'index.js'), 'utf8');
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+	const customElements = JSON.parse(readFileSync(join(root, 'custom-elements.json'), 'utf8'));
 
 	assert.doesNotMatch(source, /Monogatari|monogatari|Lily|Aether/);
 	assert.equal(manifest.private, true);
+	assert.equal(manifest.browser, 'index.js');
+	assert.equal(manifest.customElements, 'custom-elements.json');
+	assert.equal(manifest.repository.url, 'git+https://github.com/NewChoBo/vn-component-kit.git');
 	assert.deepEqual(manifest.engines, { node: '>=24 <25' });
 	assert.deepEqual(manifest.dependencies, undefined);
+	assert.equal(customElements.schemaVersion, '2.1.0');
+	assert.deepEqual(
+		customElements.modules[0].declarations.map(({ tagName }) => tagName),
+		['nc-vn-button', 'nc-vn-choice']
+	);
+	assert.deepEqual(
+		customElements.modules[0].exports.map(({ name }) => name),
+		['nc-vn-button', 'nc-vn-choice']
+	);
 });
