@@ -60,6 +60,31 @@ choice.addEventListener('nc-vn-choice', (event) => {
 
 `options`는 2~4개이며 각 option은 고유한 `id`와 비어 있지 않은 `label`을 가져야 합니다. 선택 결과, route, state effect는 이 패키지가 결정하지 않습니다.
 
+### `nc-vn-ui-scale`
+
+UI 크기를 `compact`, `standard`, `large` 세 단계로 고르는 엔진 비의존 설정 primitive입니다. 실제 CSS 크기와 저장소는 소비 프로젝트가 소유합니다.
+
+```html
+<nc-vn-ui-scale
+	value="standard"
+	label="UI size"
+	description="Adjusts text and control sizing."
+	compact-label="Small"
+	standard-label="Standard"
+	large-label="Large"
+	name="ui-scale"
+></nc-vn-ui-scale>
+```
+
+- `value`: `compact`, `standard`, `large`
+- `label`, `compact-label`, `standard-label`, `large-label`: 번역된 필수 문구
+- `description`: 선택적 보조 설명
+- `name`: form/radio group 및 이벤트 식별용 안정 이름
+- `disabled`: boolean attribute/property
+- 변경 이벤트: `nc-vn-ui-scale-change` (`detail.value`, `detail.name`)
+
+컴포넌트는 최소 44px 선택 영역과 native radio keyboard semantics를 제공합니다. `compact`를 선택해도 소비 프로젝트는 핵심 터치 영역을 44px보다 작게 줄이지 않아야 합니다.
+
 ## 브라우저 직접 로딩
 
 ```html

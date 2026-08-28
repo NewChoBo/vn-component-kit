@@ -3,10 +3,13 @@
 (function exposeVnComponents(root) {
 	const buttonTag = 'nc-vn-button';
 	const choiceTag = 'nc-vn-choice';
+	const uiScaleTag = 'nc-vn-ui-scale';
 	const buttonVariants = Object.freeze(['icon', 'text']);
 	const buttonTypes = Object.freeze(['button', 'submit', 'reset']);
+	const uiScaleValues = Object.freeze(['compact', 'standard', 'large']);
 	const tokenPattern = /^[a-z0-9_-]+(?:\s+[a-z0-9_-]+)*$/i;
 	const identifierPattern = /^[a-z][a-z0-9-]*$/;
+	let uiScaleInstanceCount = 0;
 
 	function requiredText(value, property) {
 		if (typeof value !== 'string' || value.trim() === '') throw new TypeError(`${property} must be a non-empty string.`);
@@ -84,6 +87,22 @@
 			constraint: optionalText(input.constraint, 'definition.constraint'),
 			question: optionalText(input.question, 'definition.question'),
 			options: Object.freeze(options)
+		});
+	}
+
+	function normalizeUiScaleProperties(input = {}) {
+		const value = input.value ?? 'standard';
+		if (!uiScaleValues.includes(value)) throw new TypeError(`Unsupported UI scale value: ${value}`);
+
+		return Object.freeze({
+			value,
+			label: requiredText(input.label, 'label'),
+			description: optionalText(input.description, 'description'),
+			compactLabel: requiredText(input.compactLabel, 'compactLabel'),
+			standardLabel: requiredText(input.standardLabel, 'standardLabel'),
+			largeLabel: requiredText(input.largeLabel, 'largeLabel'),
+			name: optionalIdentifier(input.name, 'name'),
+			disabled: input.disabled === true
 		});
 	}
 
@@ -241,7 +260,110 @@
 			}
 		}
 
-		return Object.freeze({ VnButtonElement, VnChoiceElement });
+		class VnUiScaleElement extends HTMLElementBase {
+			static get observedAttributes() {
+				return ['value', 'label', 'description', 'compact-label', 'standard-label', 'large-label', 'name', 'disabled'];
+			}
+
+			constructor() {
+				super();
+				uiScaleInstanceCount += 1;
+				this.controlName = `${uiScaleTag}-${uiScaleInstanceCount}`;
+				this.fieldsetElement = null;
+				this.legendElement = null;
+				this.descriptionElement = null;
+				this.optionElements = new Map();
+			}
+
+			connectedCallback() {
+				if (!this.fieldsetElement) this.render();
+				this.sync();
+			}
+
+			attributeChangedCallback() {
+				if (this.fieldsetElement) this.sync();
+			}
+
+			get properties() {
+				return normalizeUiScaleProperties({
+					value: this.getAttribute('value') ?? 'standard',
+					label: this.getAttribute('label'),
+					description: this.getAttribute('description'),
+					compactLabel: this.getAttribute('compact-label'),
+					standardLabel: this.getAttribute('standard-label'),
+					largeLabel: this.getAttribute('large-label'),
+					name: this.getAttribute('name'),
+					disabled: this.hasAttribute('disabled')
+				});
+			}
+
+			get value() { return this.getAttribute('value') ?? 'standard'; }
+			set value(value) {
+				if (!uiScaleValues.includes(value)) throw new TypeError(`Unsupported UI scale value: ${value}`);
+				this.setAttribute('value', value);
+			}
+			get disabled() { return this.hasAttribute('disabled'); }
+			set disabled(value) { this.toggleAttribute('disabled', value === true); }
+
+			render() {
+				const fieldset = this.ownerDocument.createElement('fieldset');
+				fieldset.className = 'nc-vn-ui-scale';
+				const legend = this.ownerDocument.createElement('legend');
+				legend.className = 'nc-vn-ui-scale__label';
+				const description = this.ownerDocument.createElement('p');
+				description.className = 'nc-vn-ui-scale__description';
+				const options = this.ownerDocument.createElement('div');
+				options.className = 'nc-vn-ui-scale__options';
+
+				for (const optionValue of uiScaleValues) {
+					const option = this.ownerDocument.createElement('label');
+					option.className = 'nc-vn-ui-scale__option';
+					const input = this.ownerDocument.createElement('input');
+					input.type = 'radio';
+					input.value = optionValue;
+					const copy = this.ownerDocument.createElement('span');
+					copy.className = 'nc-vn-ui-scale__option-label';
+					input.addEventListener('change', () => {
+						if (!input.checked) return;
+						this.value = optionValue;
+						this.dispatchEvent(new root.CustomEvent('nc-vn-ui-scale-change', {
+							bubbles: true,
+							detail: Object.freeze({ name: this.properties.name, value: optionValue })
+						}));
+					});
+					option.append(input, copy);
+					options.append(option);
+					this.optionElements.set(optionValue, { input, copy });
+				}
+
+				fieldset.append(legend, description, options);
+				this.replaceChildren(fieldset);
+				this.fieldsetElement = fieldset;
+				this.legendElement = legend;
+				this.descriptionElement = description;
+			}
+
+			sync() {
+				const properties = this.properties;
+				this.legendElement.textContent = properties.label;
+				this.descriptionElement.textContent = properties.description ?? '';
+				this.descriptionElement.hidden = properties.description === null;
+				this.fieldsetElement.disabled = properties.disabled;
+				const inputName = properties.name ?? this.controlName;
+				const labels = {
+					compact: properties.compactLabel,
+					standard: properties.standardLabel,
+					large: properties.largeLabel
+				};
+				for (const [optionValue, elements] of this.optionElements) {
+					elements.input.name = inputName;
+					elements.input.checked = optionValue === properties.value;
+					elements.copy.textContent = labels[optionValue];
+				}
+			}
+		}
+
+		return Object.freeze({ VnButtonElement, VnChoiceElement, VnUiScaleElement });
 	}
 
 	function register(registry = root.customElements, HTMLElementBase = root.HTMLElement) {
@@ -249,10 +371,21 @@
 		const classes = createElementClasses(HTMLElementBase);
 		if (!registry.get(buttonTag)) registry.define(buttonTag, classes.VnButtonElement);
 		if (!registry.get(choiceTag)) registry.define(choiceTag, classes.VnChoiceElement);
+		if (!registry.get(uiScaleTag)) registry.define(uiScaleTag, classes.VnUiScaleElement);
 		return true;
 	}
 
-	const api = Object.freeze({ buttonTag, choiceTag, createElementClasses, normalizeButtonProperties, normalizeChoiceDefinition, register });
+	const api = Object.freeze({
+		buttonTag,
+		choiceTag,
+		uiScaleTag,
+		uiScaleValues,
+		createElementClasses,
+		normalizeButtonProperties,
+		normalizeChoiceDefinition,
+		normalizeUiScaleProperties,
+		register
+	});
 	root.NewChoboVnComponents = api;
 	if (typeof module === 'object' && module.exports) module.exports = api;
 	register();

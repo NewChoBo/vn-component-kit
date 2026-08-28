@@ -68,6 +68,38 @@ test('choice definitions require a bounded set of unique property-driven options
 	}), /Duplicate option id/);
 });
 
+test('UI scale properties expose one bounded three-step accessibility contract', () => {
+	const properties = components.normalizeUiScaleProperties({
+		value: 'large',
+		label: '  UI size  ',
+		description: '  Changes text and control sizing  ',
+		compactLabel: 'Small',
+		standardLabel: 'Standard',
+		largeLabel: 'Large',
+		name: 'ui-scale'
+	});
+
+	assert.deepEqual(properties, {
+		value: 'large',
+		label: 'UI size',
+		description: 'Changes text and control sizing',
+		compactLabel: 'Small',
+		standardLabel: 'Standard',
+		largeLabel: 'Large',
+		name: 'ui-scale',
+		disabled: false
+	});
+	assert.equal(Object.isFrozen(properties), true);
+	assert.deepEqual(components.uiScaleValues, ['compact', 'standard', 'large']);
+	assert.throws(() => components.normalizeUiScaleProperties({
+		value: 'huge',
+		label: 'UI size',
+		compactLabel: 'Small',
+		standardLabel: 'Standard',
+		largeLabel: 'Large'
+	}), /Unsupported UI scale/);
+});
+
 test('runtime source constructs dynamic UI without markup strings', () => {
 	const source = readFileSync(join(root, 'index.js'), 'utf8');
 	const css = readFileSync(join(root, 'index.css'), 'utf8');
@@ -75,9 +107,12 @@ test('runtime source constructs dynamic UI without markup strings', () => {
 	assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML|\.map\([^)]*\)\.join\(/);
 	assert.match(source, /createElement\('button'\)/);
 	assert.match(source, /createElement\(buttonTag\)/);
+	assert.match(source, /createElement\('fieldset'\)/);
+	assert.match(source, /createElement\('input'\)/);
 	assert.match(source, /replaceChildren/);
 	assert.match(css, /min-height:\s*2\.75rem/);
 	assert.match(css, /user-select:\s*none/);
+	assert.match(css, /\.nc-vn-ui-scale__option[^{]*\{[^}]*min-height:\s*2\.75rem/s);
 });
 
 test('package remains engine-independent and guarded from accidental publication', () => {
@@ -95,10 +130,10 @@ test('package remains engine-independent and guarded from accidental publication
 	assert.equal(customElements.schemaVersion, '2.1.0');
 	assert.deepEqual(
 		customElements.modules[0].declarations.map(({ tagName }) => tagName),
-		['nc-vn-button', 'nc-vn-choice']
+		['nc-vn-button', 'nc-vn-choice', 'nc-vn-ui-scale']
 	);
 	assert.deepEqual(
 		customElements.modules[0].exports.map(({ name }) => name),
-		['nc-vn-button', 'nc-vn-choice']
+		['nc-vn-button', 'nc-vn-choice', 'nc-vn-ui-scale']
 	);
 });

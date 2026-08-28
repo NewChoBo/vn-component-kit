@@ -1,5 +1,6 @@
 nc-vn-button,
-nc-vn-choice {
+nc-vn-choice,
+nc-vn-ui-scale {
 	box-sizing: border-box;
 }
 nc-vn-button {
@@ -87,4 +88,82 @@ nc-vn-choice {
 
 .nc-vn-choice__options nc-vn-button {
 	display: block;
+}
+
+nc-vn-ui-scale {
+	display: block;
+}
+
+.nc-vn-ui-scale {
+	border: 0;
+	color: inherit;
+	display: grid;
+	font: inherit;
+	gap: 0.55rem;
+	margin: 0;
+	min-inline-size: 0;
+	padding: 0;
+}
+
+.nc-vn-ui-scale__label {
+	font-weight: 700;
+	padding: 0;
+}
+
+.nc-vn-ui-scale__description {
+	font-size: 0.875em;
+	line-height: 1.45;
+	margin: 0;
+	opacity: 0.76;
+}
+
+.nc-vn-ui-scale__options {
+	display: grid;
+	gap: var(--nc-vn-ui-scale-gap, 0.4rem);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.nc-vn-ui-scale__option {
+	align-items: center;
+	border: 1px solid var(--nc-vn-ui-scale-border, currentColor);
+	border-radius: var(--nc-vn-ui-scale-radius, 0);
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	min-height: 2.75rem;
+	padding: 0.55rem 0.7rem;
+	position: relative;
+	text-align: center;
+	user-select: none;
+}
+
+.nc-vn-ui-scale__option:has(input:checked) {
+	background: var(--nc-vn-ui-scale-selected-background, currentColor);
+	color: var(--nc-vn-ui-scale-selected-color, Canvas);
+}
+
+.nc-vn-ui-scale__option:has(input:focus-visible) {
+	outline: 2px solid var(--nc-vn-focus-color, currentColor);
+	outline-offset: 3px;
+}
+
+.nc-vn-ui-scale__option input {
+	block-size: 1px;
+	clip-path: inset(50%);
+	inline-size: 1px;
+	margin: 0;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+}
+
+.nc-vn-ui-scale:disabled .nc-vn-ui-scale__option {
+	cursor: not-allowed;
+	opacity: 0.52;
+}
+
+@media (max-width: 24rem) {
+	.nc-vn-ui-scale__options {
+		grid-template-columns: 1fr;
+	}
 }

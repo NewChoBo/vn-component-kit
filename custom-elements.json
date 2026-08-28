@@ -57,6 +57,34 @@
               "description": "Bubbling event emitted when an enabled option is selected."
             }
           ]
+        },
+        {
+          "kind": "class",
+          "name": "VnUiScaleElement",
+          "description": "Engine-independent compact, standard, or large UI scale selector.",
+          "customElement": true,
+          "tagName": "nc-vn-ui-scale",
+          "attributes": [
+            { "name": "value", "type": { "text": "'compact' | 'standard' | 'large'" }, "default": "standard" },
+            { "name": "label", "type": { "text": "string" }, "description": "Required visible group label." },
+            { "name": "description", "type": { "text": "string" }, "description": "Optional explanation of the setting effect." },
+            { "name": "compact-label", "type": { "text": "string" }, "description": "Required localized compact option label." },
+            { "name": "standard-label", "type": { "text": "string" }, "description": "Required localized standard option label." },
+            { "name": "large-label", "type": { "text": "string" }, "description": "Required localized large option label." },
+            { "name": "name", "type": { "text": "string" } },
+            { "name": "disabled", "type": { "text": "boolean" } }
+          ],
+          "members": [
+            { "kind": "field", "name": "value", "type": { "text": "'compact' | 'standard' | 'large'" } },
+            { "kind": "field", "name": "disabled", "type": { "text": "boolean" } }
+          ],
+          "events": [
+            {
+              "name": "nc-vn-ui-scale-change",
+              "type": { "text": "CustomEvent<{ name: string | null, value: 'compact' | 'standard' | 'large' }>" },
+              "description": "Bubbling event emitted when the selected UI scale changes."
+            }
+          ]
         }
       ],
       "exports": [
@@ -69,6 +97,11 @@
           "kind": "custom-element-definition",
           "name": "nc-vn-choice",
           "declaration": { "name": "VnChoiceElement", "module": "index.js" }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nc-vn-ui-scale",
+          "declaration": { "name": "VnUiScaleElement", "module": "index.js" }
         }
       ]
     }
