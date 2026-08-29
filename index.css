@@ -1,6 +1,8 @@
 nc-vn-button,
 nc-vn-choice,
-nc-vn-ui-scale {
+nc-vn-memory-grid,
+nc-vn-ui-scale,
+nc-vn-viewport-guard {
 	box-sizing: border-box;
 }
 nc-vn-button {
@@ -90,6 +92,10 @@ nc-vn-choice {
 	display: block;
 }
 
+nc-vn-memory-grid {
+	display: block;
+}
+
 nc-vn-ui-scale {
 	display: block;
 }
@@ -160,6 +166,25 @@ nc-vn-ui-scale {
 .nc-vn-ui-scale:disabled .nc-vn-ui-scale__option {
 	cursor: not-allowed;
 	opacity: 0.52;
+}
+
+nc-vn-viewport-guard {
+	align-items: center;
+	display: none;
+	inset: 0;
+	justify-items: center;
+	padding: var(--nc-vn-viewport-guard-padding, 2rem);
+	position: fixed;
+	text-align: center;
+	z-index: var(--nc-vn-viewport-guard-z-index, 2147483647);
+}
+
+nc-vn-viewport-guard[data-state="unsupported"] {
+	display: grid;
+}
+
+nc-vn-viewport-guard > * {
+	max-width: var(--nc-vn-viewport-guard-content-width, 34rem);
 }
 
 @media (max-width: 24rem) {

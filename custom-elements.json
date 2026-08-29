@@ -60,6 +60,21 @@
         },
         {
           "kind": "class",
+          "name": "VnMemoryGridElement",
+          "description": "Engine-independent property-driven memory or replay category list.",
+          "customElement": true,
+          "tagName": "nc-vn-memory-grid",
+          "members": [
+            {
+              "kind": "field",
+              "name": "items",
+              "type": { "text": "ReadonlyArray<{ id: string, mark: string, title: string, description: string }>" },
+              "description": "Required JavaScript array; JSON string attributes are not accepted."
+            }
+          ]
+        },
+        {
+          "kind": "class",
           "name": "VnUiScaleElement",
           "description": "Engine-independent compact, standard, or large UI scale selector.",
           "customElement": true,
@@ -85,6 +100,19 @@
               "description": "Bubbling event emitted when the selected UI scale changes."
             }
           ]
+        },
+        {
+          "kind": "class",
+          "name": "VnViewportGuardElement",
+          "description": "Engine-independent viewport classifier that makes sibling UI inert below a configured minimum.",
+          "customElement": true,
+          "tagName": "nc-vn-viewport-guard",
+          "attributes": [
+            { "name": "min-short-side", "type": { "text": "number" }, "default": "360" },
+            { "name": "min-long-side", "type": { "text": "number" }, "default": "640" },
+            { "name": "max-width", "type": { "text": "number" }, "default": "2560" },
+            { "name": "max-height", "type": { "text": "number" }, "default": "1440" }
+          ]
         }
       ],
       "exports": [
@@ -100,8 +128,18 @@
         },
         {
           "kind": "custom-element-definition",
+          "name": "nc-vn-memory-grid",
+          "declaration": { "name": "VnMemoryGridElement", "module": "index.js" }
+        },
+        {
+          "kind": "custom-element-definition",
           "name": "nc-vn-ui-scale",
           "declaration": { "name": "VnUiScaleElement", "module": "index.js" }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nc-vn-viewport-guard",
+          "declaration": { "name": "VnViewportGuardElement", "module": "index.js" }
         }
       ]
     }

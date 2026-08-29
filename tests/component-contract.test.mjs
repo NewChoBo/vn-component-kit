@@ -68,6 +68,42 @@ test('choice definitions require a bounded set of unique property-driven options
 	}), /Duplicate option id/);
 });
 
+test('memory items are property-driven, validated, and immutable', () => {
+	const items = components.normalizeMemoryItems([
+		{ id: 'story', mark: 'MEM', title: 'Story memories', description: 'Locked' }
+	]);
+
+	assert.deepEqual(items, [
+		{ id: 'story', mark: 'MEM', title: 'Story memories', description: 'Locked' }
+	]);
+	assert.equal(Object.isFrozen(items), true);
+	assert.equal(Object.isFrozen(items[0]), true);
+	assert.throws(() => components.normalizeMemoryItems({}), /items must be an array/);
+	assert.throws(() => components.normalizeMemoryItems([
+		{ id: 'Story Memory', mark: 'MEM', title: 'Story memories', description: 'Locked' }
+	]), /lowercase letters/);
+	assert.throws(() => components.normalizeMemoryItems([
+		{ id: 'story', mark: 'MEM', title: 'Story memories' }
+	]), /description must be a non-empty string/);
+});
+
+test('viewport guard classifies a consumer-owned continuous viewport contract', () => {
+	const contract = components.normalizeViewportContract({
+		minShortSide: 360,
+		minLongSide: 640,
+		maxWidth: 2560,
+		maxHeight: 1440
+	});
+
+	assert.deepEqual(contract, { minShortSide: 360, minLongSide: 640, maxWidth: 2560, maxHeight: 1440 });
+	assert.equal(components.viewportState({ width: 360, height: 640 }, contract), 'supported');
+	assert.equal(components.viewportState({ width: 640, height: 360 }, contract), 'supported');
+	assert.equal(components.viewportState({ width: 359, height: 640 }, contract), 'unsupported');
+	assert.equal(components.viewportState({ width: 400, height: 400 }, contract), 'unsupported');
+	assert.equal(components.viewportState({ width: 2561, height: 1440 }, contract), 'bounded');
+	assert.throws(() => components.normalizeViewportContract({ minShortSide: 640, minLongSide: 360 }), /minLongSide/);
+});
+
 test('UI scale properties expose one bounded three-step accessibility contract', () => {
 	const properties = components.normalizeUiScaleProperties({
 		value: 'large',
@@ -106,6 +142,7 @@ test('runtime source constructs dynamic UI without markup strings', () => {
 
 	assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML|\.map\([^)]*\)\.join\(/);
 	assert.match(source, /createElement\('button'\)/);
+	assert.match(source, /createElement\('article'\)/);
 	assert.match(source, /createElement\(buttonTag\)/);
 	assert.match(source, /createElement\('fieldset'\)/);
 	assert.match(source, /createElement\('input'\)/);
@@ -113,9 +150,15 @@ test('runtime source constructs dynamic UI without markup strings', () => {
 	assert.match(source, /event\.key === ' '[\s\S]*event\.key === 'Enter'/);
 	assert.match(source, /elements\.input\.focus\(\)[\s\S]*elements\.input\.click\(\)/);
 	assert.match(source, /replaceChildren/);
+	assert.match(source, /sibling\.setAttribute\('inert',\s*''\)/);
+	assert.match(source, /for \(const sibling of this\.inertSiblings\) sibling\.removeAttribute\('inert'\)/);
+	assert.match(source, /new root\.MutationObserver\(\(\) => this\.sync\(\)\)/);
 	assert.match(css, /min-height:\s*2\.75rem/);
 	assert.match(css, /user-select:\s*none/);
 	assert.match(css, /\.nc-vn-ui-scale__option[^{]*\{[^}]*min-height:\s*2\.75rem/s);
+	assert.match(css, /nc-vn-memory-grid[^{]*\{[^}]*display:\s*block/s);
+	assert.match(css, /nc-vn-viewport-guard\[data-state="unsupported"\][^{]*\{[^}]*display:\s*grid/s);
+	assert.doesNotMatch(css, /Nanum Myeongjo|lily-gold|lily-bone|rain-courtyard/);
 });
 
 test('package remains engine-independent and guarded from accidental publication', () => {
@@ -133,10 +176,10 @@ test('package remains engine-independent and guarded from accidental publication
 	assert.equal(customElements.schemaVersion, '2.1.0');
 	assert.deepEqual(
 		customElements.modules[0].declarations.map(({ tagName }) => tagName),
-		['nc-vn-button', 'nc-vn-choice', 'nc-vn-ui-scale']
+		['nc-vn-button', 'nc-vn-choice', 'nc-vn-memory-grid', 'nc-vn-ui-scale', 'nc-vn-viewport-guard']
 	);
 	assert.deepEqual(
 		customElements.modules[0].exports.map(({ name }) => name),
-		['nc-vn-button', 'nc-vn-choice', 'nc-vn-ui-scale']
+		['nc-vn-button', 'nc-vn-choice', 'nc-vn-memory-grid', 'nc-vn-ui-scale', 'nc-vn-viewport-guard']
 	);
 });

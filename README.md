@@ -60,6 +60,19 @@ choice.addEventListener('nc-vn-choice', (event) => {
 
 `options`는 2~4개이며 각 option은 고유한 `id`와 비어 있지 않은 `label`을 가져야 합니다. 선택 결과, route, state effect는 이 패키지가 결정하지 않습니다.
 
+### `nc-vn-memory-grid`
+
+Memory/Gallery 또는 replay category 목록을 엔진과 무관하게 렌더링합니다. 항목은 JSON attribute가 아니라 `items` property로 전달하고, 작품별 색상·타이포그래피·grid column은 소비 프로젝트 CSS가 소유합니다.
+
+```js
+const grid = document.querySelector('nc-vn-memory-grid');
+grid.items = [
+	{ id: 'story', mark: 'MEM', title: 'Story memories', description: 'Locked' }
+];
+```
+
+각 항목은 `id`, `mark`, `title`, `description`을 가지며 컴포넌트는 `role=list/listitem`과 안정적인 `.nc-vn-memory-grid__*` theme hook만 제공합니다.
+
 ### `nc-vn-ui-scale`
 
 UI 크기를 `compact`, `standard`, `large` 세 단계로 고르는 엔진 비의존 설정 primitive입니다. 실제 CSS 크기와 저장소는 소비 프로젝트가 소유합니다.
@@ -84,6 +97,24 @@ UI 크기를 `compact`, `standard`, `large` 세 단계로 고르는 엔진 비�
 - 변경 이벤트: `nc-vn-ui-scale-change` (`detail.value`, `detail.name`)
 
 컴포넌트는 최소 44px 선택 영역과 native radio semantics를 제공하며, 방향키·Space·Enter 선택을 명시적으로 보장합니다. `compact`를 선택해도 소비 프로젝트는 핵심 터치 영역을 44px보다 작게 줄이지 않아야 합니다.
+
+### `nc-vn-viewport-guard`
+
+연속형 viewport 계약을 분류하고 최소 크기 미만에서는 sibling UI를 `inert`와 `aria-hidden`으로 차단합니다. 안내 문구와 시각 테마는 light DOM child와 소비 프로젝트 CSS가 소유합니다.
+
+```html
+<nc-vn-viewport-guard
+	min-short-side="360"
+	min-long-side="640"
+	max-width="2560"
+	max-height="1440"
+	aria-hidden="true"
+>
+	<section role="alert">Resize the window or rotate the device.</section>
+</nc-vn-viewport-guard>
+```
+
+상태는 `data-state="unsupported | supported | bounded"`로 노출됩니다. Kit CSS는 fixed overlay와 표시 상태 같은 구조만 제공하며 배경·색·폰트·문구는 제공하지 않습니다.
 
 ## 브라우저 직접 로딩
 

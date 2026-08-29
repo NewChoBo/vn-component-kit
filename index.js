@@ -3,10 +3,18 @@
 (function exposeVnComponents(root) {
 	const buttonTag = 'nc-vn-button';
 	const choiceTag = 'nc-vn-choice';
+	const memoryGridTag = 'nc-vn-memory-grid';
 	const uiScaleTag = 'nc-vn-ui-scale';
+	const viewportGuardTag = 'nc-vn-viewport-guard';
 	const buttonVariants = Object.freeze(['icon', 'text']);
 	const buttonTypes = Object.freeze(['button', 'submit', 'reset']);
 	const uiScaleValues = Object.freeze(['compact', 'standard', 'large']);
+	const defaultViewportContract = Object.freeze({
+		minShortSide: 360,
+		minLongSide: 640,
+		maxWidth: 2560,
+		maxHeight: 1440
+	});
 	const tokenPattern = /^[a-z0-9_-]+(?:\s+[a-z0-9_-]+)*$/i;
 	const identifierPattern = /^[a-z][a-z0-9-]*$/;
 	let uiScaleInstanceCount = 0;
@@ -33,6 +41,52 @@
 		const text = requiredText(value, property);
 		if (!identifierPattern.test(text)) throw new TypeError(`${property} must use lowercase letters, numbers, and hyphens.`);
 		return text;
+	}
+
+	function positiveInteger(value, property) {
+		const number = Number(value);
+		if (!Number.isInteger(number) || number <= 0) throw new TypeError(`${property} must be a positive integer.`);
+		return number;
+	}
+
+	function normalizeMemoryItems(items) {
+		if (!Array.isArray(items)) throw new TypeError('items must be an array.');
+		return Object.freeze(items.map((item, index) => {
+			if (!item || typeof item !== 'object' || Array.isArray(item)) {
+				throw new TypeError(`items[${index}] must be an object.`);
+			}
+			return Object.freeze({
+				id: requiredIdentifier(item.id, `items[${index}].id`),
+				mark: requiredText(item.mark, `items[${index}].mark`),
+				title: requiredText(item.title, `items[${index}].title`),
+				description: requiredText(item.description, `items[${index}].description`)
+			});
+		}));
+	}
+
+	function normalizeViewportContract(properties = {}) {
+		const contract = Object.freeze({
+			minShortSide: positiveInteger(properties.minShortSide ?? defaultViewportContract.minShortSide, 'minShortSide'),
+			minLongSide: positiveInteger(properties.minLongSide ?? defaultViewportContract.minLongSide, 'minLongSide'),
+			maxWidth: positiveInteger(properties.maxWidth ?? defaultViewportContract.maxWidth, 'maxWidth'),
+			maxHeight: positiveInteger(properties.maxHeight ?? defaultViewportContract.maxHeight, 'maxHeight')
+		});
+		if (contract.minLongSide < contract.minShortSide) throw new RangeError('minLongSide must be greater than or equal to minShortSide.');
+		if (contract.maxWidth < contract.minShortSide || contract.maxHeight < contract.minShortSide) {
+			throw new RangeError('Maximum dimensions must be greater than or equal to minShortSide.');
+		}
+		return contract;
+	}
+
+	function viewportState(viewport, contract = defaultViewportContract) {
+		const normalized = normalizeViewportContract(contract);
+		const width = positiveInteger(viewport?.width, 'viewport.width');
+		const height = positiveInteger(viewport?.height, 'viewport.height');
+		const shortSide = Math.min(width, height);
+		const longSide = Math.max(width, height);
+		if (shortSide < normalized.minShortSide || longSide < normalized.minLongSide) return 'unsupported';
+		if (width > normalized.maxWidth || height > normalized.maxHeight) return 'bounded';
+		return 'supported';
 	}
 
 	function normalizeButtonProperties(input = {}) {
@@ -260,6 +314,50 @@
 			}
 		}
 
+		class VnMemoryGridElement extends HTMLElementBase {
+			constructor() {
+				super();
+				this._items = Object.freeze([]);
+			}
+
+			connectedCallback() {
+				this.setAttribute('role', 'list');
+				this.renderItems();
+			}
+
+			get items() { return this._items; }
+			set items(value) {
+				this._items = normalizeMemoryItems(value);
+				if (this.isConnected) this.renderItems();
+			}
+
+			renderItems() {
+				const fragment = this.ownerDocument.createDocumentFragment();
+				for (const item of this._items) {
+					const card = this.ownerDocument.createElement('article');
+					card.className = 'nc-vn-memory-grid__item';
+					card.dataset.memoryCategory = item.id;
+					card.setAttribute('role', 'listitem');
+
+					const mark = this.ownerDocument.createElement('span');
+					mark.className = 'nc-vn-memory-grid__mark';
+					mark.setAttribute('aria-hidden', 'true');
+					mark.textContent = item.mark;
+
+					const title = this.ownerDocument.createElement('h3');
+					title.className = 'nc-vn-memory-grid__title';
+					title.textContent = item.title;
+					const description = this.ownerDocument.createElement('p');
+					description.className = 'nc-vn-memory-grid__description';
+					description.textContent = item.description;
+
+					card.append(mark, title, description);
+					fragment.append(card);
+				}
+				this.replaceChildren(fragment);
+			}
+		}
+
 		class VnUiScaleElement extends HTMLElementBase {
 			static get observedAttributes() {
 				return ['value', 'label', 'description', 'compact-label', 'standard-label', 'large-label', 'name', 'disabled'];
@@ -385,7 +483,77 @@
 			}
 		}
 
-		return Object.freeze({ VnButtonElement, VnChoiceElement, VnUiScaleElement });
+		class VnViewportGuardElement extends HTMLElementBase {
+			static get observedAttributes() {
+				return ['min-short-side', 'min-long-side', 'max-width', 'max-height'];
+			}
+
+			constructor() {
+				super();
+				this.ariaHiddenSiblings = new Map();
+				this.childObserver = null;
+				this.inertSiblings = new Set();
+				this.handleResize = () => this.sync();
+			}
+
+			connectedCallback() {
+				root.addEventListener?.('resize', this.handleResize);
+				if (typeof root.MutationObserver === 'function' && this.parentElement) {
+					this.childObserver = new root.MutationObserver(() => this.sync());
+					this.childObserver.observe(this.parentElement, { childList: true });
+				}
+				this.sync();
+			}
+
+			disconnectedCallback() {
+				root.removeEventListener?.('resize', this.handleResize);
+				this.childObserver?.disconnect();
+				this.childObserver = null;
+			}
+
+			attributeChangedCallback() {
+				if (this.isConnected) this.sync();
+			}
+
+			get contract() {
+				return normalizeViewportContract({
+					minShortSide: this.getAttribute('min-short-side') ?? defaultViewportContract.minShortSide,
+					minLongSide: this.getAttribute('min-long-side') ?? defaultViewportContract.minLongSide,
+					maxWidth: this.getAttribute('max-width') ?? defaultViewportContract.maxWidth,
+					maxHeight: this.getAttribute('max-height') ?? defaultViewportContract.maxHeight
+				});
+			}
+
+			sync() {
+				const state = viewportState({ width: root.innerWidth, height: root.innerHeight }, this.contract);
+				if (state === 'unsupported') {
+					for (const sibling of this.parentElement?.children ?? []) {
+						if (sibling === this) continue;
+						if (!this.ariaHiddenSiblings.has(sibling)) {
+							this.ariaHiddenSiblings.set(sibling, sibling.getAttribute('aria-hidden'));
+							sibling.setAttribute('aria-hidden', 'true');
+						}
+						if (!sibling.hasAttribute('inert')) {
+							sibling.setAttribute('inert', '');
+							this.inertSiblings.add(sibling);
+						}
+					}
+				} else {
+					for (const sibling of this.inertSiblings) sibling.removeAttribute('inert');
+					this.inertSiblings.clear();
+					for (const [sibling, previous] of this.ariaHiddenSiblings) {
+						if (previous === null) sibling.removeAttribute('aria-hidden');
+						else sibling.setAttribute('aria-hidden', previous);
+					}
+					this.ariaHiddenSiblings.clear();
+				}
+				this.dataset.state = state;
+				this.setAttribute('aria-hidden', state === 'unsupported' ? 'false' : 'true');
+				return state;
+			}
+		}
+
+		return Object.freeze({ VnButtonElement, VnChoiceElement, VnMemoryGridElement, VnUiScaleElement, VnViewportGuardElement });
 	}
 
 	function register(registry = root.customElements, HTMLElementBase = root.HTMLElement) {
@@ -393,19 +561,27 @@
 		const classes = createElementClasses(HTMLElementBase);
 		if (!registry.get(buttonTag)) registry.define(buttonTag, classes.VnButtonElement);
 		if (!registry.get(choiceTag)) registry.define(choiceTag, classes.VnChoiceElement);
+		if (!registry.get(memoryGridTag)) registry.define(memoryGridTag, classes.VnMemoryGridElement);
 		if (!registry.get(uiScaleTag)) registry.define(uiScaleTag, classes.VnUiScaleElement);
+		if (!registry.get(viewportGuardTag)) registry.define(viewportGuardTag, classes.VnViewportGuardElement);
 		return true;
 	}
 
 	const api = Object.freeze({
 		buttonTag,
 		choiceTag,
+		defaultViewportContract,
+		memoryGridTag,
 		uiScaleTag,
 		uiScaleValues,
+		viewportGuardTag,
 		createElementClasses,
 		normalizeButtonProperties,
 		normalizeChoiceDefinition,
+		normalizeMemoryItems,
 		normalizeUiScaleProperties,
+		normalizeViewportContract,
+		viewportState,
 		register
 	});
 	root.NewChoboVnComponents = api;
