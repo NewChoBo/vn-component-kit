@@ -166,6 +166,8 @@ Monogatari가 이미 제공하는 action, component, screen, 설정을 우선 �
 
 ## 검증
 
+공통 VN 저장소의 UTF-8/LF/binary/lint 기준은 [`docs/repository-baseline.md`](docs/repository-baseline.md)에 정의합니다. EditorConfig는 저장소 간 상속을 지원하지 않으므로 각 소비 저장소 루트 파일을 같은 변경 단위로 갱신합니다.
+
 ```powershell
 npm test
 npm run validate

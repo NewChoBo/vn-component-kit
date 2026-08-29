@@ -33,8 +33,13 @@
   ],
   "scripts": {
     "link:consumer": "node scripts/link-consumer.mjs",
+    "lint": "npm run lint:editorconfig",
+    "lint:editorconfig": "editorconfig-checker",
     "test": "node --test tests/**/*.test.mjs",
-    "validate": "npm test && npm pack --dry-run"
+    "validate": "npm run lint && npm test && npm pack --dry-run"
+  },
+  "devDependencies": {
+    "editorconfig-checker": "6.1.1"
   },
   "engines": {
     "node": ">=24 <25"
