@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, realpath } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,6 +46,15 @@ export function parseDevArguments(argv, cwd = process.cwd()) {
 	});
 }
 
+export async function isMainModule(argvPath = process.argv[1], modulePath = scriptPath, resolveRealPath = realpath) {
+	if (!argvPath) return false;
+	const [invokedPath, sourcePath] = await Promise.all([
+		resolveRealPath(resolve(argvPath)),
+		resolveRealPath(resolve(modulePath))
+	]);
+	return invokedPath === sourcePath;
+}
+
 async function verifyComponentPackage(packageRoot) {
 	const manifest = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8'));
 	if (manifest.name !== '@newchobo/vn-components') {
@@ -88,7 +97,7 @@ async function main() {
 	await run(process.execPath, [serveEntrypoint, '.', '--listen', options.port, '--no-clipboard'], options.consumerRoot);
 }
 
-if (process.argv[1] && isAbsolute(scriptPath) && resolve(process.argv[1]) === scriptPath) {
+if (isAbsolute(scriptPath) && await isMainModule()) {
 	main().catch((error) => {
 		console.error(error.message);
 		process.exitCode = 1;
